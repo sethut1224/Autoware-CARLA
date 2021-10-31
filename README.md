@@ -1,63 +1,125 @@
-# OpenPlanner 2.5
-The workspace for directly downloading and installing Autoware.AI versions with the latest OpenPlanner 2.5 updates
 
-## Videos and Tutorials for OpenPlanner. [YouTube](https://youtu.be/86K95RY0Iqk)
 
-## Installation and build with specific Autoware relase and OpenPlanner updates. 
+# Autoware-CARLA
+This repository is installation guide for integrates Autoware with CARLA
 
-Autoware.AI help and Installation Guide, [Autoware.AI](https://github.com/Autoware-AI/autoware.ai/wiki/Source-Build)
- - Follow the main dependecies installation 
- - For How to build, follow the following instructions below
+**Reference**
 
-System dependencies for Ubuntu 18.04 / Melodic
+- Autoware version is 1.15 + openplanner2.5 by Hatem-darweesh 
+https://github.com/hatem-darweesh/autoware.ai.openplanner
+- CARLA-Autoware bridge by carla-simulator
+https://github.com/carla-simulator/carla-autoware
+
+
+
+## Docker and NVIDIA-container-runtime Installation for run Autoware 1.15 docker image
+
+**If you have already installed docker and nvidia-container-runtime, this process is not necessary**
+
+*Docker Installation*
 ```
 $ sudo apt update
-$ sudo apt install -y python-catkin-pkg python-rosdep ros-$ROS_DISTRO-catkin
-$ sudo apt install -y python3-pip python3-colcon-common-extensions python3-setuptools python3-vcstool
-$ pip3 install -U setuptools
+$ sudo apt-get install apt-transport-https ca-certificates curl gnupg lsb-release
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+$ echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+$ sudo apt update
+$ sudo apt-get install docker-ce docker-ce-cli containerd.io
 ```
+if above process is unavailable, try docker official installation reference
+https://docs.docker.com/engine/install/ubuntu/
+
+
+*nvidia-container-runtime Installation*
 
 ```
-$ git clone https://github.com/hatem-darweesh/autoware.ai.openplanner.git
-$ cd autoware.ai.openplanner
-$ mkdir -p src
+$ curl -s -L https://nvidia.github.io/nvidia-container-runtime/gpgkey | \
+  sudo apt-key add - distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+$ curl -s -L https://nvidia.github.io/nvidia-container-runtime/$distribution/nvidia-container-runtime.list | sudo tee /etc/apt/sources.list.d/nvidia-container-runtime.list
+$ sudo apt-get update
+$ sudo apt-get install nvidia-container-runtime
 ```
 
-For Autoware.AI 1.13.0 Release + the latest OpenPlanner development:
+if above process is unavailable, try nvidia-container-runtime official installation reference
+https://github.com/NVIDIA/nvidia-container-runtime
 
+## Download CARLA Simulator and CARLA Contents
+### CARLA simulator
+**Download CARLA simulator**
+ [CARLA_0.9.10.1.tar.gz](https://carla-releases.s3.eu-west-3.amazonaws.com/Linux/CARLA_0.9.10.1.tar.gz)
+- CARLA official download page, for more information, read https://github.com/carla-simulator/carla
 ```
-$ vcs import src < openplanner.1.13.repos
+$ mkdir $HOME/shared_dir
+$ cd $HOME/shared_dir
+$ tar xfvz <CARLA_0.9.10.1.tar.gz PATH>
+$ mv <your_CARLA_directory> CARLA
+**make sure that untar CARLA_0.9.10.1.tar.gz in shared_dir directory**
 ```
+### CARLA contents(Map, Config ...)
+**Install git lfs(Large File System)**
+```
+$ curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
+$ sudo apt-get install git-lfs
+```
+**Get the contents from git**
+```
+$ cd $HOME/shared_dir
+$ mkdir data
+$ git lfs clone https://github.com/carla-simulator/carla-autoware.git
+$ cd carla-autoware
+$ git submodule update --init
+$ mv autoware-contents $HOME/shared_dir/data
+$ mv autoware-contents carla
+** make sure that map files in $HOME/shared_dir/data/carla/maps and config files in $HOME/shared_dir/data/carla/configs**
+```
+## Pull Autoware Bleedingedge Image From DockerHub
+```
+$ sudo docker pull autoware/autoware:bleedingedge-melodic-base-cuda
+```
+## Run Autoware 1.15 Docker Container using Custom Script
+```
+$ cd $HOME/shared_dir
+$ git clone https://github.com/sethut1224/Autoware-CARLA
+$ cd Autoware-CARLA
+$ sudo ./run_autoware_docker_container.sh bleedingedge-melodic-base-cuda
+> usage : ./run_autoware_docker_container.sh <IMAGE_TAG>
+```
+***now, you will be inside the container!***
 
-For Autoware.AI (latest-master) 1.15.0 Release + the latest OpenPlanner development:
+## Container Setting 
+```
+$ cp -arp shared_dir/Autoware-CARLA/Autoware $HOME
+$ ./install_dependencies.sh
+$ ./setting.sh
+```
+## Build Autoware packages
+you can use build alias **cc, ccu, cuda_ccu**
+* **$ cc <package_name>**:   colcon build --packages-select <package_name>
+* **$ ccu <package_name>**: colcon build --packages-up-to <package_name>
+* **$ cu** : AUTOWARE_COMPILE_WITH_CUDA=1 colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release --packages-up-to
+* **$ cu <package_name>** :  AUTOWARE_COMPILE_WITH_CUDA=1 colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release --packages-up-to <package_name>
 
-```
-$ vcs import src < openplanner.1.15.repos
-```
 
-Install dependecies using rosdep: 
-```
-$ rosdep update
-$ rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
-```
+## Autoware-CARLA Design
 
-Build using colcon or catkin: 
-```
-$ catkin_make -DCMAKE_BUILD_TYPE=Release
-```
-or
-```
-$ colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
-```
+The bridge contains three Carla Clients.
 
-## Utilities files: 
-- op.rviz config file for visualizing OpenPlanner topics
-- setup_op_repo_branch.sh file to automatically switch to OpenPlanner.1.13 or OpenPlanner.1.15 from original Autoware.AI
-- pull_from_branch.sh pulls all repo updates from certain branch for (common, core_planning, core_perception, utilities)
+1. ROS Bridge - Monitors existing actors in Carla, publishes changes on ROS Topics (e.g. new sensor data)
+2. Ego Vehicle - Instantiation of the ego vehicle with its sensor setup.
+3. Waypoint Calculation - Uses the Carla Python API to calculate a route.
 
-## Research Papers
-- Darweesh, Hatem, Eijiro Takeuchi, and Kazuya Takeda."OpenPlanner 2.0: The Portable Open Source Planner for Autonomous Driving Applications." 2021 IEEE Intelligent Vehicles Symposium Workshops (IV Workshop). July 11-17, 2021. Nagoya, Japan.
+![Design Overview](docs/design.png)
 
-- Darweesh, Hatem, Eijiro Takeuchi, Kazuya Takeda, Yoshiki Ninomiya, Adi Sujiwo, Luis Yoichi Morales, Naoki Akai, Tetsuo Tomizawa, and Shinpei Kato. "Open source integrated planner for autonomous navigation in highly dynamic environments." [Journal of Robotics and Mechatronics 29, no. 4](https://www.fujipress.jp/jrm/rb/robot002900040668/) (2017): 668-684.
+## Scenario Execution
 
-- Darweesh, Hatem, Eijiro Takeuchi, and Kazuya Takeda. "Estimating the Probabilities of Surrounding Vehicles’ Intentions and Trajectories using a Behavior Planner." [International journal of automotive engineering 10.4](https://www.jstage.jst.go.jp/article/jsaeijae/10/4/10_20194117/_article/-char/ja/) (2019): 299-308.
+It is possible to use CARLA scenario runner in conjunction with autoware: [Documentation](docs/use_scenario_runner.md).
+
+
+## Run CARLA-Autoware
+**Run CARLA Simulator**
+* $cd $HOME/shared_dir/CARLA
+* $./CarlaUE4._sh -opengl
+
+**Run CARLA Autoware Agent**
+* $roslaunch autoware_carla_agent autoware_carla_agent.launch
