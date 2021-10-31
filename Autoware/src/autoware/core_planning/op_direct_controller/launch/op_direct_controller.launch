@@ -1,0 +1,79 @@
+<!-- -->
+<launch>
+	<arg name="steer_mode" 					default="0" /> <!-- steer angle = 0,  steer torque = 1 -->
+	<arg name="drive_mode" 					default="1" /> <!-- linear velocity = 0, pedals stroke = 1 -->
+			
+	<arg name="control_frequency" 			default="50"/> <!-- Hz -->
+	<arg name="avg_engine_brake_accel"		default="-1.0"/> <!-- m/s2 -->
+	<arg name="min_follow_safe_distance"	default="15.0"/> <!-- m -->
+		
+	<arg name="max_steer_value"				default="11.52"/> <!-- radians -->	
+	<arg name="max_steer_torque"			default="100"/>
+	<arg name="min_steer_torque"			default="-100"/> 
+	
+	<arg name="max_accel_value"				default="100"/>
+	<arg name="max_brake_value"				default="100"/>
+	
+	<arg name="steerGainKP" 				default="30.0"/>
+	<arg name="steerGainKI" 				default="10.0"/>
+	<arg name="steerGainKD" 				default="10.0"/>
+	
+	<arg name="velocityGainKP" 				default="1.0"/>
+	<arg name="velocityGainKI" 				default="0.0"/>
+	<arg name="velocityGainKD" 				default="0.0"/>
+	
+	<arg name="accelGainKP" 				default="15.0"/>
+	<arg name="accelGainKI" 				default="4.0"/>
+	<arg name="accelGainKD" 				default="10.0"/>
+	
+	<arg name="brakeGainKP" 				default="2.0"/>
+	<arg name="brakeGainKI" 				default="2.0"/>
+	<arg name="brakeGainKD" 				default="1.0"/> 		 
+	
+	<arg name="accelInitDelay" 				default="0.4"/> <!-- seconds -->
+	<arg name="accelAvgDelay" 				default="0.1"/> <!-- seconds -->
+	<arg name="avgAcceleration"				default="1.5"/> <!-- m/s2 -->
+	
+	<arg name="brakeInitDelay" 				default="0.2"/> <!-- seconds -->
+	<arg name="brakeAvgDelay" 				default="0.05"/> <!-- seconds -->
+	<arg name="avgDeceleration"				default="-1.5"/> <!-- m/s2 -->
+	
+	<node pkg="op_direct_controller" type="op_direct_controller" name="op_direct_controller" output="screen">			
+		<param name="steer_mode" 				value="$(arg steer_mode)" />
+		<param name="drive_mode" 				value="$(arg drive_mode)" />
+			
+		<param name="control_frequency" 		value="$(arg control_frequency)" />
+		<param name="avg_engine_brake_accel" 	value="$(arg avg_engine_brake_accel)" />
+		<param name="min_follow_safe_distance" 	value="$(arg min_follow_safe_distance)" />
+				
+		<param name="max_steer_value" 			value="$(arg max_steer_value)" />		
+		<param name="max_accel_value" 			value="$(arg max_accel_value)" />
+		<param name="max_brake_value" 			value="$(arg max_brake_value)" />
+				
+		<param name="steerGainKP" 				value="$(arg steerGainKP)" />
+		<param name="steerGainKI" 				value="$(arg steerGainKI)" />
+		<param name="steerGainKD" 				value="$(arg steerGainKD)" />
+		
+		<param name="velocityGainKP" 			value="$(arg velocityGainKP)" />
+		<param name="velocityGainKI" 			value="$(arg velocityGainKI)" />
+		<param name="velocityGainKD" 			value="$(arg velocityGainKD)" />
+		
+		<param name="accelGainKP" 				value="$(arg accelGainKP)" />
+		<param name="accelGainKI" 				value="$(arg accelGainKI)" />		
+		<param name="accelGainKD" 				value="$(arg accelGainKD)" />
+		
+		<param name="brakeGainKP" 				value="$(arg brakeGainKP)" />
+		<param name="brakeGainKI" 				value="$(arg brakeGainKI)" />
+		<param name="brakeGainKD" 				value="$(arg brakeGainKD)" />
+		
+		
+		<param name="accelInitDelay" 			value="$(arg accelInitDelay)" />
+		<param name="accelAvgDelay" 			value="$(arg accelAvgDelay)" />
+		<param name="avgAcceleration" 			value="$(arg avgAcceleration)" />
+		
+		<param name="brakeInitDelay" 			value="$(arg brakeInitDelay)" />
+		<param name="brakeAvgDelay" 			value="$(arg brakeAvgDelay)" />
+		<param name="avgDeceleration" 			value="$(arg avgDeceleration)" />			
+	</node>
+
+</launch>

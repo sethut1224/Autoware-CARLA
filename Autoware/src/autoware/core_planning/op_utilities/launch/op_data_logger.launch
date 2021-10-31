@@ -1,0 +1,18 @@
+<!-- -->
+<launch>		
+	<arg name="experimentName" 			default="carla_calibration" />	
+	<arg name="lightsAndSignsLog" 		default="false" />	
+	<arg name="predictionLog"			default="true" />
+	<arg name="controlLog"				default="false" />
+	<arg name="simulatedCars"			default="true" />
+		
+	<node pkg="op_utilities" type="op_data_logger" name="op_data_logger" output="screen">
+						
+		<param name="experimentName" 	value="$(arg experimentName)" />
+		<param name="lightsAndSignsLog" value="$(arg lightsAndSignsLog)" />		
+		<param name="predictionLog" 	value="$(arg predictionLog)" />
+		<param name="controlLog" 		value="$(arg controlLog)" />
+		<param name="simulatedCars" 	value="$(arg simulatedCars)" />
+	</node>
+
+</launch>

@@ -1,0 +1,9 @@
+<!-- -->
+<launch>
+	<arg name="send_port" 	default="10003" />
+	<arg name="receive_port" 	default="10004" />
+	<node pkg="op_utilities" type="op_hmi_bridge" name="op_hmi_bridge" output="screen">		
+	<param name="send_port"	value="$(arg send_port)" />			
+	<param name="receive_port"	value="$(arg receive_port)" />
+	</node>
+</launch>
