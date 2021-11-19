@@ -69,8 +69,8 @@ $ mkdir data
 $ git lfs clone https://github.com/carla-simulator/carla-autoware.git
 $ cd carla-autoware
 $ git submodule update --init
-$ mv autoware-contents $HOME/shared_dir/data
 $ mv autoware-contents carla
+$ mv carla $HOME/shared_dir/data
 ** make sure that map files in $HOME/shared_dir/data/carla/maps and config files in $HOME/shared_dir/data/carla/configs**
 ```
 ## Pull Autoware Bleedingedge Image From DockerHub
